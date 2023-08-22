@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-
+# droplet : 2613@Extra
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-rdn=-6+yn3u#71v%@@n=%o$p!m0w=dowd(-!y=m_5r=qft9nrl
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['143.110.158.48']
 
 
 # Application definition
@@ -88,12 +88,12 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'startdb5',
-        'USER': 'testuser',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'proconnect',
+        'USER': 'procnuser',
         'PASSWORD': 'arc43211',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 

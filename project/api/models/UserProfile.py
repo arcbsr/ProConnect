@@ -3,10 +3,12 @@ from django.db import models
 from rest_framework import serializers
 from sqlalchemy import false
 from django.contrib.auth.models import User
+from .RoleModel import Role
 
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=100)
     category = models.CharField(max_length=100,null=True,blank=True)
     description = models.CharField(max_length=200,null=True,blank=True)

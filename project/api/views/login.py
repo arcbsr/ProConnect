@@ -17,6 +17,8 @@ from knox.views import LoginView as KnoxLoginView
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from django.contrib.auth import login
 from api.models import UserProfile
+from api.models.RoleModel import Role
+from api.models.TokenRole import ExtendedAuthToken
 from api.views import UserProfileSerializer
 from response import ResponseSend
 from django.forms.models import model_to_dict
@@ -83,7 +85,12 @@ class LoginAPI(KnoxLoginView):
         # return super(LoginAPI, self).post(request, format=None)
 
         profile = getProfileFromToken(request)
+        # employer_role = Role.objects.get(id=1)
+        # Role.objects.create(name='employer')
         token = AuthToken.objects.create(user)
+        # token = ExtendedAuthToken.objects.create(user)
+        # token.role = employer_role
+        # token.save()
         if not token:
             raise serializers.ValidationError(
                 'token is not generated...',
@@ -139,6 +146,7 @@ def getProfileFromToken(request):
     try:
         # return UserProfileSerializer(UserProfile.objects.get(user_id= request.user.id)).data
         return  model_to_dict(UserProfile.objects.get(user_id= request.user.id))
+        
     except Exception as e:
         raise serializers.ValidationError(
                 'Profile not found',)

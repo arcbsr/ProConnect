@@ -12,12 +12,13 @@ class UserSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    user_role = serializers.CharField(source='role.name', read_only=True)
 
     # user = UserSerializer(many=False)
     class Meta:
         model = UserProfile
         # fields = "__all__"
-        fields = ('id', 'name')
+        fields = ('id', 'name','email','user_role','phone')
 
 
 class UserProfileViewSet(

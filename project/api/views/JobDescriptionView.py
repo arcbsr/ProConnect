@@ -20,7 +20,7 @@ from rest_framework import status
 class JobDescriptionSerializer(serializers.ModelSerializer):
 
     author_name = serializers.CharField(source='author.profile.name', read_only=True)
-    
+    author_role = serializers.CharField(source='author.profile.role.name', read_only=True)
     
     class Meta:
         model = JobDescription
@@ -69,7 +69,7 @@ class JobViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        return Response({"id": serializer.data['id']}, status=status.HTTP_201_CREATED, headers=headers)
+        return Response({"data": serializer.data}, status=status.HTTP_201_CREATED, headers=headers)
     
     def update(self, request, pk, format=None):
         try:

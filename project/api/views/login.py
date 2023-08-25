@@ -61,6 +61,8 @@ class RegisterAPI(generics.GenericAPIView):
         profile: UserProfile = UserProfile()
         # profile.user_id = user
         profile.name = user.username
+        profile.email = user.email
+        profile.phone = user.username
         profile.user = user
         profile.save()
         return Response({
@@ -144,8 +146,8 @@ class ProfileView(APIView):
 def getProfileFromToken(request):
     
     try:
-        # return UserProfileSerializer(UserProfile.objects.get(user_id= request.user.id)).data
-        return  model_to_dict(UserProfile.objects.get(user_id= request.user.id))
+        return UserProfileSerializer(UserProfile.objects.get(user_id= request.user.id)).data
+        # return  model_to_dict(UserProfile.objects.get(user_id= request.user.id))
         
     except Exception as e:
         raise serializers.ValidationError(

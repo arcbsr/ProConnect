@@ -12,10 +12,16 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 # droplet : 2613@Extra
 import os
 from pathlib import Path
-
+from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+# Actual directory user files go to
+MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'mediafiles')
+
+# URL used to access the media
+MEDIA_URL = '/media/'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -24,11 +30,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-rdn=-6+yn3u#71v%@@n=%o$p!m0w=dowd(-!y=m_5r=qft9nrl'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOST','146.190.37.64').split(',')
-# ['146.190.159.178']
-
+if DEBUG:
+    ALLOWED_HOSTS = ['127.0.0.1']
+else:
+    ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOST','146.190.37.64').split(',')
+    ['146.190.159.178']
+    
 
 # Application definition
 
@@ -42,7 +52,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'knox',
     "corsheaders",
-    'api'
+    'api',
+    'versatileimagefield'
 ]
 
 MIDDLEWARE = [
@@ -87,17 +98,31 @@ WSGI_APPLICATION = 'project.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'proconnect',
-        'USER': 'procnuser',
-        'PASSWORD': 'arc43211',
-        'HOST': 'localhost',
-        'PORT': '',
+if not DEBUG:
+    DATABASES = {
+    
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'startdb5',
+            'USER': 'testuser',
+            'PASSWORD': 'arc43211',
+            'HOST': '127.0.0.1',
+            'PORT': '5432',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'proconnect',
+            'USER': 'procnuser',
+            'PASSWORD': 'arc43211',
+            'HOST': 'localhost',
+            'PORT': '',
+        }
+    }
+
+
 
 
 # Password validation

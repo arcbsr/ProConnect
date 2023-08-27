@@ -1,4 +1,6 @@
 from django.contrib import admin
+
+from api.models import Category, Image
 from .models import UserProfile, JobDescription, RoleModel
 from .models.JobDescription import JobDescriptionAdmin
 from .models.UserProfile import UserProfileAdmin
@@ -9,6 +11,9 @@ from .models.RoleModel import RoleAdmin
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(RoleModel.Role,RoleAdmin)
 admin.site.register(JobDescription, JobDescriptionAdmin)
+admin.site.register(Image)
+admin.site.register(Category.Category)
+admin.site.register(Category.Type)
 
 
 

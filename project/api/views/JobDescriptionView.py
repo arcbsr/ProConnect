@@ -10,6 +10,8 @@ from rest_framework.decorators import action
 from rest_framework.decorators import permission_classes
 from django.forms.models import model_to_dict
 from rest_framework import generics, filters
+from api.models.Category import Category
+from api.models.Category import Type
 from api.models.Permissions import IsEmployer, IsOwner
 from rest_framework.pagination import LimitOffsetPagination
 from api.models.UserProfile import UserProfile
@@ -17,11 +19,31 @@ from api.views.UserProfileView import UserSerializer
 
 from rest_framework import status
 
+
+class CategorySerialize(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'  # You can specify the fields you want to include here
+
+class CategoryList(generics.ListAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerialize
+
+class JobTypeSerialize(serializers.ModelSerializer):
+    class Meta:
+        model = Type
+        fields = '__all__'  # You can specify the fields you want to include here
+
+class JobTypeList(generics.ListAPIView):
+    queryset = Type.objects.all()
+    serializer_class = JobTypeSerialize
+
 class JobDescriptionSerializer(serializers.ModelSerializer):
 
     author_name = serializers.CharField(source='author.profile.name', read_only=True)
     author_role = serializers.CharField(source='author.profile.role.name', read_only=True)
-    
+    category_name = serializers.CharField(source='category.name', read_only=True)
+    job_type_name = serializers.CharField(source='jobtype.name', read_only=True)
     class Meta:
         model = JobDescription
         # fields = '__all__'
@@ -40,7 +62,8 @@ class JobDescriptionViewSet(APIView):
             })
 
 class JobViewSet(viewsets.ModelViewSet):
-    queryset = JobDescription.objects.select_related('author__profile')
+    queryset = JobDescription.objects.all()
+    # .select_related('author__profile')
     # queryset = queryset.filter(is_active=True)
     # queryset = queryset.filter(author=2)
     serializer_class = JobDescriptionSerializer

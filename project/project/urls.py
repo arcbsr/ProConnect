@@ -27,11 +27,15 @@ from response import ResponseSend
 from rest_framework import status 
 from rest_framework.views import Response
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(api_urls))
 ]
-
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # handler404 = "django_404_project.views.page_not_found_view"
 # without this line django admin doesn't get css, js files
 urlpatterns += staticfiles_urlpatterns()

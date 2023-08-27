@@ -20,6 +20,7 @@ from api.models import UserProfile
 from api.models.RoleModel import Role
 from api.models.TokenRole import ExtendedAuthToken
 from api.views import UserProfileSerializer
+from api.views.UserProfileView import UserProfileSerializerImage
 from response import ResponseSend
 from django.forms.models import model_to_dict
 
@@ -146,7 +147,7 @@ class ProfileView(APIView):
 def getProfileFromToken(request):
     
     try:
-        return UserProfileSerializer(UserProfile.objects.get(user_id= request.user.id)).data
+        return UserProfileSerializerImage(UserProfile.objects.get(user_id= request.user.id)).data
         # return  model_to_dict(UserProfile.objects.get(user_id= request.user.id))
         
     except Exception as e:

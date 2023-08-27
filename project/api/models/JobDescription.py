@@ -5,6 +5,8 @@ from sqlalchemy import false
 from django.contrib.auth.models import User
 from django.contrib import admin
 
+from api.models.Category import Category, Type
+
 class JobDescription(models.Model):
     title = models.CharField(max_length=100,blank=True)
     description = models.TextField(null=True,blank=True)
@@ -17,6 +19,9 @@ class JobDescription(models.Model):
     end_date = models.DateField(null=True,blank=True)
     start_time = models.TimeField(null=True,blank=True)
     end_time = models.TimeField(null=True,blank=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_DEFAULT,default=1, null=True,blank=True)
+    jobtype = models.ForeignKey(Type, on_delete=models.SET_DEFAULT,default=1, null=True,blank=True)
+
 
     def __str__(self):
         return self.title

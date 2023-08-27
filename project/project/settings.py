@@ -98,7 +98,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-if not DEBUG:
+if DEBUG:
     DATABASES = {
     
         'default': {

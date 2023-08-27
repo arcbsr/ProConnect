@@ -98,9 +98,31 @@ WSGI_APPLICATION = 'project.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-if not DEBUG:
-    DATABASES = {
+# if DEBUG:
+#     DATABASES = {
     
+#         'default': {
+#             'ENGINE': 'django.db.backends.postgresql',
+#             'NAME': 'startdb5',
+#             'USER': 'testuser',
+#             'PASSWORD': 'arc43211',
+#             'HOST': '127.0.0.1',
+#             'PORT': '5432',
+#         }
+#     }
+# else:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#             'NAME': 'proconnect',
+#             'USER': 'procnuser',
+#             'PASSWORD': 'arc43211',
+#             'HOST': 'localhost',
+#             'PORT': '',
+#         }
+#     }
+
+DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': 'startdb5',
@@ -109,20 +131,7 @@ if not DEBUG:
             'HOST': '127.0.0.1',
             'PORT': '5432',
         }
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'proconnect',
-            'USER': 'procnuser',
-            'PASSWORD': 'arc43211',
-            'HOST': 'localhost',
-            'PORT': '',
-        }
-    }
-
-
+}
 
 
 # Password validation

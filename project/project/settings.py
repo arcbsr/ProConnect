@@ -33,11 +33,9 @@ SECRET_KEY = 'django-insecure-rdn=-6+yn3u#71v%@@n=%o$p!m0w=dowd(-!y=m_5r=qft9nrl
 # DEBUG = True
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-# if DEBUG:
-#     ALLOWED_HOSTS = ['127.0.0.1']
-# else:
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOST','146.190.37.64').split(',')
-['146.190.159.178']
+ALLOWED_HOSTS = [config('HOST')]
+    # ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOST','146.190.37.64').split(',')
+    # ['146.190.159.178']
     
 
 # Application definition
@@ -98,18 +96,17 @@ WSGI_APPLICATION = 'project.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-# if DEBUG:
-#     DATABASES = {
+DATABASES = {
     
-#         'default': {
-#             'ENGINE': 'django.db.backends.postgresql',
-#             'NAME': 'startdb5',
-#             'USER': 'testuser',
-#             'PASSWORD': 'arc43211',
-#             'HOST': '127.0.0.1',
-#             'PORT': '5432',
-#         }
-#     }
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_NAME'),
+            'USER': config('DB_USER'),
+            'PASSWORD': config('DB_PASSWORD'),
+            'HOST': 'localhost',
+            'PORT': '',
+        }
+}
 # else:
 #     DATABASES = {
 #         'default': {
@@ -121,17 +118,6 @@ WSGI_APPLICATION = 'project.wsgi.application'
 #             'PORT': '',
 #         }
 #     }
-
-DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'proconnect',
-            'USER': 'procnuser',
-            'PASSWORD': 'arc43211',
-            'HOST': 'localhost',
-            'PORT': '',
-        }
-}
 
 
 # Password validation

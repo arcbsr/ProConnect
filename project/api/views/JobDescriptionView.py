@@ -26,6 +26,9 @@ class CategorySerialize(serializers.ModelSerializer):
         fields = '__all__'  # You can specify the fields you want to include here
 
 class CategoryList(generics.ListAPIView):
+
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = []
     queryset = Category.objects.all()
     serializer_class = CategorySerialize
 
@@ -35,6 +38,9 @@ class JobTypeSerialize(serializers.ModelSerializer):
         fields = '__all__'  # You can specify the fields you want to include here
 
 class JobTypeList(generics.ListAPIView):
+
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = []
     queryset = Type.objects.all()
     serializer_class = JobTypeSerialize
 

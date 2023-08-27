@@ -33,11 +33,11 @@ SECRET_KEY = 'django-insecure-rdn=-6+yn3u#71v%@@n=%o$p!m0w=dowd(-!y=m_5r=qft9nrl
 # DEBUG = True
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-if DEBUG:
-    ALLOWED_HOSTS = ['127.0.0.1']
-else:
-    ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOST','146.190.37.64').split(',')
-    ['146.190.159.178']
+# if DEBUG:
+#     ALLOWED_HOSTS = ['127.0.0.1']
+# else:
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOST','146.190.37.64').split(',')
+['146.190.159.178']
     
 
 # Application definition

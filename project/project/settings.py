@@ -124,12 +124,12 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'startdb5',
-            'USER': 'testuser',
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'proconnect',
+            'USER': 'procnuser',
             'PASSWORD': 'arc43211',
-            'HOST': '127.0.0.1',
-            'PORT': '5432',
+            'HOST': 'localhost',
+            'PORT': '',
         }
 }
 

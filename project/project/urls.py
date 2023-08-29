@@ -73,9 +73,10 @@ def api_exception_handler(exc , context ) :
         status_code = response.status_code
 
         # error["status_code"] = status_code
-        error["message"] = http_code_to_message[status_code]
-        error["details"] = response.data
-        response.data = error_payload
+        # error["message"] = http_code_to_message[status_code]
+        # error["details"] = response.data
+        # response.data = error_payload
+        response.data = response.data
     else:
         error["details"] = 'Unknown'
     

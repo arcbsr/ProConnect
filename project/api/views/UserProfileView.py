@@ -31,6 +31,7 @@ class UserProfileSerializerImage(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['id', 'name','email','phone','profile_image', 'profile_image_url']
+        read_only_fields = ['phone']
 
     def get_profile_image_url(self, obj):
         if obj.profile_image:

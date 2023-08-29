@@ -192,6 +192,12 @@ REST_FRAMEWORK = {
     # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'NON_FIELD_ERRORS_KEY': 'errors',
     "EXCEPTION_HANDLER": "project.urls.api_exception_handler",
+    # 'EXCEPTION_HANDLER': 'api.exception_handlers.custom_exception_handler',  # Replace with your actual import path
+
+    'DEFAULT_RENDERER_CLASSES': [
+        'api.renderers.CustomJSONRenderer',  # Replace with your actual import path
+        
+    ],
 
 }
 REST_KNOX = {'TOKEN_TTL': None}

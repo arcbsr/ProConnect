@@ -121,10 +121,8 @@ class ProfileView(APIView):
             # if data:
             #     profile = UserProfileSerializer(data).data
             profile = getProfileFromToken(request)
-            result = ResponseSend.sendMsg([profile])
-            return Response({
-                'response': result,
-            })
+            # result = ResponseSend.sendMsg([profile])
+            return Response(profile)
         except Exception as e:
             raise serializers.ValidationError(
                 e,

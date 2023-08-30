@@ -23,7 +23,8 @@ class UserProfile(models.Model):
     updated = models.DateTimeField(auto_now=True, null=True)
     images = models.ForeignKey(Image,on_delete=models.CASCADE,null=True, blank=True,related_name='profile_pic')
     profile_image = VersatileImageField('Image',upload_to='profile_images/',blank=True, null=True)
-
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
 
 def __str__(self):
         return self.name

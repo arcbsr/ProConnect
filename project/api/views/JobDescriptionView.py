@@ -246,7 +246,7 @@ class BidListCreateView(generics.ListCreateAPIView):
        
         job = JobDescription.objects.get(pk=job_id)
         if job.author.id == self.request.user.id:
-            return Response({"error": "You are not allow to bid in your own project."}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"error": "You are not allow to bid in your own project."}, status=status.HTTP_401_UNAUTHORIZED)
         return super().create(request, *args, **kwargs)
     def perform_create(self, serializer):
         job_id = self.kwargs['job_id']

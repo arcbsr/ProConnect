@@ -12,6 +12,7 @@ from django.forms.models import model_to_dict
 from rest_framework import generics, filters
 from api.models.Category import Category
 from api.models.Category import Type
+from api.models.ExtracKeyWord import KeywordExtractor
 from api.models.Permissions import IsEmployer, IsOwner
 from rest_framework.pagination import LimitOffsetPagination
 from api.models.UserProfile import UserProfile
@@ -102,6 +103,9 @@ class JobViewSet(viewsets.ModelViewSet):
     def update(self, request, pk, format=None):
         try:
             instance = JobDescription.objects.get(pk=pk)
+            keywords = KeywordExtractor().extract_keywords(self.request.POST.get('description', ''))
+            if keywords:
+                instance.keyword = keywords
             serializer = JobDescriptionSerializer(instance, data=request.data)
 
             # Check if the user making the request is the author of the instance
@@ -133,10 +137,12 @@ class JobViewSet(viewsets.ModelViewSet):
     #     instance.save()
         
     def perform_create(self, serializer):
-        input_string = "apple banana orange"
-        parts = input_string.split()  # Splitting the string by whitespace
-        result = ", ".join(parts) 
-        serializer.save(author=self.request.user, keyword=result, is_active=True)
+        # input_string = "apple banana orange"
+        # parts = input_string.split()  # Splitting the string by whitespace
+        # result = ", ".join(parts) 
+        keyword_extractor = KeywordExtractor()
+        keywords = keyword_extractor.extract_keywords(self.request.POST.get('description', ''))
+        serializer.save(author=self.request.user, keyword=keywords, is_active=True)
 
 class JobListAPI(APIView):
     permission_classes = []

@@ -98,11 +98,11 @@ class LoginAPI(KnoxLoginView):
             raise serializers.ValidationError(
                 'token is not generated...',
             )
-        return Response(ResponseSend.sendMsg({
+        return Response({
             'token': token[1],
             'profile': profile,
 
-        }))
+        })
         # return Response({
         #             'token': token[1],
         #             'user': profile,

@@ -28,8 +28,8 @@ urlpatterns = [
     path('register/', RegisterAPI.as_view(), name='register'),
     path('login/', LoginAPI.as_view(), name='login'),
     path('logout/', knox_views.LogoutView.as_view(), name='logout'),
-    path('job/bidpost/<int:job_id>/', BidListCreateView.as_view(), name='task-detail'),
-    path('job/biddinglist/<int:job_id>/', BidListCombineView.as_view(), name='test'),
+    path('job/<int:job_id>/bid/', BidListCreateView.as_view(), name='task-detail'),
+    path('job/detail/<int:job_id>/', BidListCombineView.as_view(), name='test'),
     # path('job/', JobViewSet.as_view(), name='job'),
     # path('', include(router.urls)),
 

@@ -15,6 +15,7 @@ from api.models.Category import Type
 from api.models.Permissions import IsEmployer, IsOwner
 from rest_framework.pagination import LimitOffsetPagination
 from api.models.UserProfile import UserProfile
+from api.models.JobBidding import Bidding
 from api.views.UserProfileView import UserSerializer
 
 from rest_framework import status
@@ -55,7 +56,7 @@ class JobDescriptionSerializer(serializers.ModelSerializer):
         # fields = '__all__'
         fields = '__all__'
         # exclude = ['keyword']
-        read_only_fields = ['is_active','author']
+        read_only_fields = ['is_active','author','keyword']
 
 class JobDescriptionViewSet(APIView):
     permission_classes = (permissions.AllowAny,)
@@ -78,10 +79,8 @@ class JobViewSet(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
     permission_classes = []
     
-
     def get_permissions(self):
         permission_classes = [permissions.IsAuthenticated()]
-        print(self.action)
         if self.action == 'create':# Apply authentication only for the "POST" action
             permission_classes.append(IsEmployer(self, self.request))
         # return []  # No authentication for other actions
@@ -187,3 +186,71 @@ class JobDescriptionUpdateView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except JobDescription.DoesNotExist:
             return Response({"error": "JobDescription not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+
+class BidSerializer(serializers.ModelSerializer):
+    bidder_name = serializers.CharField(source='worker.profile.name', read_only=True)
+    bidder_id = serializers.CharField(source='worker.profile.user_id', read_only=True)
+    job_title = serializers.CharField(source='job.title', read_only=True)
+    employer_name = serializers.CharField(source='job.author.profile.name', read_only=True)
+    employer_id = serializers.CharField(source='job.author.profile.user_id', read_only=True)
+    class Meta:
+        model = Bidding
+        fields = '__all__'
+        # exclude = ['bid_amount']
+        extra_kwargs = {
+            'job': {'required': False},  # Make job field not required
+        }
+class BidListCombineView(APIView):
+    serializer_class = BidSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    def get(self, request, *args, **kwargs):
+         
+        job_id = self.kwargs['job_id']
+        job_details = JobDescription.objects.filter(id=job_id).first()
+        job_details_serializer = JobDescriptionSerializer(job_details, many=False)
+        if not job_details:
+            return Response({"error": "item not found"}, status=status.HTTP_404_NOT_FOUND)
+        bids = Bidding.objects.filter(job__id=job_id)
+        my_bids = Bidding.objects.filter(job__id=job_id, worker_id= self.request.user.id).first()
+        bid_serializer = BidSerializer(bids, many=True)
+        if not my_bids:
+            combined_data = {
+            'detail' : job_details_serializer.data,
+            'bids': bid_serializer.data,
+             }
+        else:
+            my_bid_serializer = BidSerializer(my_bids, many=False)
+            combined_data = {
+                'detail' : job_details_serializer.data,
+                'bids': bid_serializer.data,
+                'my_bid': my_bid_serializer.data
+            }
+
+        return Response(combined_data)
+    
+class BidListCreateView(generics.ListCreateAPIView):
+    # queryset = Bidding.objects.all()
+    serializer_class = BidSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        job_id = self.kwargs['job_id']
+        biddings = Bidding.objects.filter(job__id=job_id)
+        return  biddings
+
+    # def list(self, request, *args, **kwargs):
+    #     return self.http_method_not_allowed(request, *args, **kwargs)
+    
+    def perform_create(self, serializer):
+        job_id = self.kwargs['job_id']
+        job = JobDescription.objects.get(pk=job_id)
+        worker_id = self.request.user.id
+        existing_bid = Bidding.objects.filter(job=job, worker_id=worker_id).first()
+
+        if existing_bid:
+            # Update existing bid
+            serializer.update(existing_bid, serializer.validated_data)
+        else:
+            # Create new bid
+            serializer.save(job=job, worker_id=worker_id)

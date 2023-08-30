@@ -5,7 +5,7 @@ from api.views import UserProfileViewSet, ProfileView, RegisterAPI,LoginAPI, Use
 from rest_framework import routers
 from knox import views as knox_views
 from rest_framework import permissions
-from api.views.JobDescriptionView import JobTypeList
+from api.views.JobDescriptionView import BidListCreateView, BidListCombineView, JobTypeList
 
 from api.views.UserProfileView import UserViewSet
 
@@ -13,6 +13,7 @@ router = routers.DefaultRouter(trailing_slash=True)
 # router.register('profile', UserProfileViewSet, basename='usersprofile_api')
 router.register('jobs', JobViewSet)
 router.register('users', UserViewSet)
+# router.register('bidding', BidListCreateView)
 
 
 
@@ -27,6 +28,8 @@ urlpatterns = [
     path('register/', RegisterAPI.as_view(), name='register'),
     path('login/', LoginAPI.as_view(), name='login'),
     path('logout/', knox_views.LogoutView.as_view(), name='logout'),
+    path('job/bidpost/<int:job_id>/', BidListCreateView.as_view(), name='task-detail'),
+    path('job/biddinglist/<int:job_id>/', BidListCombineView.as_view(), name='test'),
     # path('job/', JobViewSet.as_view(), name='job'),
     # path('', include(router.urls)),
 

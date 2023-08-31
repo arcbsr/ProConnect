@@ -4,10 +4,11 @@ node {
 
     try {
         stage 'deploy'
-            ssh rafi@146.190.152.133 -i ~/connect.rsa <<EOF
+            ssh rafi@146.190.152.133 -i ~/connect.rsa 'bash -s' <<EOF
               mkdir fromjenkins
               exit
             EOF
+        
         stage 'Publish results'
             slackSend color: "good", message: "Build successful: `${env.JOB_NAME}#${env.BUILD_NUMBER}` <${env.BUILD_URL}|Open in Jenkins>"
     }

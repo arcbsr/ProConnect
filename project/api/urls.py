@@ -19,7 +19,7 @@ router.register('users', UserViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    # path('profile/', ProfileView.as_view()),
+    path('profile/', ProfileView.as_view()),
     path('joblist/', JobListAPI.as_view(), name='employer-jobs-list'),
     path('job/category/', CategoryList.as_view(), name='job-cat-list'),
     path('job/type/', JobTypeList.as_view(), name='job-cat-list'),

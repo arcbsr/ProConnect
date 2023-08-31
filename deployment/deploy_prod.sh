@@ -1,5 +1,6 @@
 ssh root@146.190.152.133 <<EOF
-  sudo - rafi
+  2613@Extra
+  su - rafi
   cd ProConnect
   git pull 
   git checkout phase_1

@@ -4,7 +4,7 @@ node {
 
     try {
         stage 'deploy'
-            ssh rafi@146.190.152.133 -i ~/connect.rsa 'bash -s' <<EOF
+            ssh rafi@146.190.152.133 -i ~/connect.rsa <<EOF
               mkdir fromjenkins
               exit
             EOF

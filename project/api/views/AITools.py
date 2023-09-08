@@ -175,13 +175,13 @@ class GenerateAIText(APIView):
     def post(self, request, format=None):
         serializer = AITextSerializer(data=request.data)
         if serializer.is_valid():
-            # text = serializer.validated_data['text']
-            # api_key = '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'
-            # openai.api_key =  api_key
-            # # os.getenv("OPENAI_API_KEY")
-            # chat_completion = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=[{"role": "user", "content": text}])
-            # expert_reply = chat_completion['choices'][0]['message']['content']
-            expert_reply = 'Dummy text'
+            text = serializer.validated_data['text']
+            api_key = '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'
+            openai.api_key =  api_key
+            # os.getenv("OPENAI_API_KEY")
+            chat_completion = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=[{"role": "user", "content": text}])
+            expert_reply = chat_completion['choices'][0]['message']['content']
+            # expert_reply = 'Dummy text'
             if expert_reply:
                 return JsonResponse({'expertsays': expert_reply})
             else:

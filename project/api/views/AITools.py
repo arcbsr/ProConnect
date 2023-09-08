@@ -89,17 +89,17 @@ class TranslateAPIView(APIView):
             target_language = serializer.validated_data['target_language']
 
             try:
-                # client = translateN.TranslationServiceClient()
-                # parent = client.location_path("proconnect-398414", "global")
+                client = translateN.TranslationServiceClient()
+                parent = client.location_path("proconnect-398414", "global")
 
-                # response = client.translate_text(
-                #     parent=parent,
-                #     contents=[text],
-                #     target_language_code=target_language,
-                # )
+                response = client.translate_text(
+                    parent=parent,
+                    contents=[text],
+                    target_language_code=target_language,
+                )
 
-                # translated_text = response.translations[0].translated_text
-                translated_text = text
+                translated_text = response.translations[0].translated_text
+                # translated_text = text
                 return Response({'translated_text': translated_text})
             except Exception as e:
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

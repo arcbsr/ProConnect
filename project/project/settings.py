@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "corsheaders",
     'api',
     'versatileimagefield',
+    'google.cloud.translate_v2'
     
 ]
 

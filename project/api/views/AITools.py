@@ -189,19 +189,21 @@ class GenerateAIText(APIView):
         serializer = AITextSerializer(data=request.data)
         if serializer.is_valid():
             text = serializer.validated_data['text']
+            try:
+                api_key = config('OPENAI_API_KEY')
 
-            api_key = config('OPENAI_API_KEY')
-
-            if not api_key:
-                return Response({'error': 'Unable to fetch data (Key-Error)'}, status=status.HTTP_400_BAD_REQUEST)
-            openai.api_key = api_key
-            chat_completion = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=[{"role": "user", "content": text}],max_tokens=10)
-            expert_reply = chat_completion['choices'][0]['message']['content']
-            # expert_reply = 'Dummy text'
-            if expert_reply:
-                return JsonResponse({'expertsays': expert_reply})
-            else:
-                return JsonResponse({'error': 'Unable to fetch data'}, status=500)
+                if not api_key:
+                    return Response({'error': 'Unable to fetch data (Key-Error)'}, status=status.HTTP_400_BAD_REQUEST)
+                openai.api_key = api_key
+                chat_completion = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=[{"role": "user", "content": text}],max_tokens=10)
+                expert_reply = chat_completion['choices'][0]['message']['content']
+                # expert_reply = 'Dummy text'
+                if expert_reply:
+                    return JsonResponse({'expertsays': expert_reply})
+                else:
+                    return JsonResponse({'error': 'Unable to fetch data'}, status=500)
+            except Exception as e:
+                return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

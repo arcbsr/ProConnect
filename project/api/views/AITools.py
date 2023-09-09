@@ -193,7 +193,7 @@ class GenerateAIText(APIView):
         serializer = AITextSerializer(data=request.data)
         if serializer.is_valid():
             text = serializer.validated_data['text']
-            openai.api_key =  os.getenv("OPENAI_API_KEY")
+            openai.api_key =  os.environ.get('OPENAI_API_KEY')
             chat_completion = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=[{"role": "user", "content": text}])
             expert_reply = chat_completion['choices'][0]['message']['content']
             # expert_reply = 'Dummy text'

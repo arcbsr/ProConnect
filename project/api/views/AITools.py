@@ -90,10 +90,10 @@ class TranslateAPIView(APIView):
 
             try:
                 client = translateN.TranslationServiceClient()
-                parent = client.location_path("proconnect-398414", "global")
+                parent =  client.location_path("proconnect-398414", "global")
 
                 response = client.translate_text(
-                    parent=parent,
+                    parent='projects/{}'.format('proconnect-398414'),
                     contents=[text],
                     target_language_code=target_language,
                 )

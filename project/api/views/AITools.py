@@ -3,7 +3,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from api.models.AIToolsModel import AITextSerializer, LanguageSerializer, TranslationSerializer
 from rest_framework import status
-from google.cloud import translate as translateN
 from google.cloud import translate_v2 as translate
 from rest_framework import generics, permissions
 from django.http import JsonResponse
@@ -13,7 +12,6 @@ import openai
 import json
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from googletrans import Translator
 
 ALL_COUNTRY_DATA = [
     {"language_code": "af", "display_name": "Afrikaans"},
@@ -194,7 +192,7 @@ class GenerateAIText(APIView):
         serializer = AITextSerializer(data=request.data)
         if serializer.is_valid():
             text = serializer.validated_data['text']
-            api_key = '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'
+            api_key = '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'
             openai.api_key =  api_key
             # os.getenv("OPENAI_API_KEY")
             chat_completion = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=[{"role": "user", "content": text}])

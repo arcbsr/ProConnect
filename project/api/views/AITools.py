@@ -1,5 +1,4 @@
-import os
-import googletrans
+from decouple import config
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from api.models.AIToolsModel import AITextSerializer, LanguageSerializer, TranslationSerializer
@@ -8,10 +7,7 @@ from google.cloud import translate_v2 as translate
 from rest_framework import generics, permissions
 from django.http import JsonResponse
 import requests
-import time
 import openai
-import json
-from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
 ALL_COUNTRY_DATA = [
@@ -187,14 +183,14 @@ class AIPriceAssist(APIView):
     
 
 class GenerateAIText(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
         serializer = AITextSerializer(data=request.data)
         if serializer.is_valid():
             text = serializer.validated_data['text']
 
-            api_key = os.environ.get('OPENAI_API_KEY')
+            api_key = config('OPENAI_API_KEY')
 
             if not api_key:
                 return Response({'error': 'Unable to fetch data (Key-Error)'}, status=status.HTTP_400_BAD_REQUEST)

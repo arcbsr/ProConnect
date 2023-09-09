@@ -1,3 +1,4 @@
+import googletrans
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from api.models.AIToolsModel import AITextSerializer, LanguageSerializer, TranslationSerializer
@@ -12,7 +13,7 @@ import openai
 import json
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-
+from googletrans import Translator
 
 ALL_COUNTRY_DATA = [
     {"language_code": "af", "display_name": "Afrikaans"},
@@ -88,22 +89,39 @@ class TranslateAPIView(APIView):
             text = serializer.validated_data['text']
             target_language = serializer.validated_data['target_language']
 
+            # try:
+            #     client = translateN.TranslationServiceClient()
+            #     parent = client.location_path("proconnect-398414", "global")
+
+            #     response = client.translate_text(
+            #         parent=parent,
+            #         contents=[text],
+            #         target_language_code=target_language,
+            #     )
+
+            #     translated_text = response.translations[0].translated_text
+            #     translated_text = text
+            #     return Response({'translated_text': translated_texto})
+            # except Exception as e:
+            #     return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
             try:
-                client = translateN.TranslationServiceClient()
-                parent =  client.location_path("proconnect-398414", "global")
+                translate_client = translate.Client()
 
-                response = client.translate_text(
-                    parent='projects/{}'.format('proconnect-398414'),
-                    contents=[text],
-                    target_language_code=target_language,
-                )
+                if isinstance(text, bytes):
+                    text = text.decode("utf-8")
 
-                translated_text = response.translations[0].translated_text
-                # translated_text = text
-                return Response({'translated_text': translated_text})
+                # Text can also be a sequence of strings, in which case this method
+                # will return a sequence of results for each text.
+                result = translate_client.translate(text, target_language=target_language)
+
+                print("Text: {}".format(result["input"]))
+                print("Translation: {}".format(result["translatedText"]))
+                print("Detected source language: {}".format(result["detectedSourceLanguage"]))
+                return Response({'translated_text': result["translatedText"]})
             except Exception as e:
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+            
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 

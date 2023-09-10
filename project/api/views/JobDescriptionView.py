@@ -220,6 +220,13 @@ class BidListCombineView(APIView):
         bids = Bidding.objects.filter(job__id=job_id)
         my_bids = Bidding.objects.filter(job__id=job_id, worker_id= self.request.user.id).first()
         bid_serializer = BidSerializer(bids, many=True)
+        AI_Price = []
+        AI_Price.append({
+            "price": 260,
+            "weather": 'Cloudy',
+            "details": "It's a weather details",
+            "icon":"http://google.com/image.png"  # Adjust units as needed (metric, imperial, etc.)
+        })
         if not my_bids:
             combined_data = {
             'detail' : job_details_serializer.data,
@@ -230,7 +237,8 @@ class BidListCombineView(APIView):
             combined_data = {
                 'detail' : job_details_serializer.data,
                 'bids': bid_serializer.data,
-                'my_bid': my_bid_serializer.data
+                'my_bid': my_bid_serializer.data,
+                'suggestions' : AI_Price
             }
 
         return Response(combined_data)
@@ -267,3 +275,30 @@ class BidListCreateView(generics.ListCreateAPIView):
         else:
             # Create new bid
             serializer.save(job=job, worker_id=worker_id)
+
+
+class MYJobListAPI(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        
+        try:
+            job_descriptions = JobDescription.objects.filter(author= self.request.user.id)
+            serializer = JobDescriptionSerializer(job_descriptions, many=True)
+            return Response(serializer.data)
+    
+        except Exception as e:
+                return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class MYBidListAPI(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        
+        try:
+            job_descriptions = Bidding.objects.filter(worker= self.request.user.id)
+            serializer = BidSerializer(job_descriptions, many=True)
+            return Response(serializer.data)
+    
+        except Exception as e:
+                return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

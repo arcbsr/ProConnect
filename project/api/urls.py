@@ -6,7 +6,7 @@ from rest_framework import routers
 from knox import views as knox_views
 from rest_framework import permissions
 from api.views.AITools import GenerateAIText, TranslateAPIView, LanguageListView, AIPriceAssist
-from api.views.JobDescriptionView import BidListCreateView, BidListCombineView, JobTypeList
+from api.views.JobDescriptionView import BidListCreateView, BidListCombineView, JobTypeList, MYBidListAPI, MYJobListAPI
 
 from api.views.UserProfileView import UserViewSet
 
@@ -22,6 +22,8 @@ urlpatterns = [
     path('', include(router.urls)),
     path('profile/', ProfileView.as_view()),
     path('joblist/', JobListAPI.as_view(), name='employer-jobs-list'),
+    path('myjobs/', MYJobListAPI.as_view(), name='my-jobs-list'),
+    path('mybids/', MYBidListAPI.as_view(), name='my-bids-list'),
     path('job/category/', CategoryList.as_view(), name='job-cat-list'),
     path('job/type/', JobTypeList.as_view(), name='job-cat-list'),
     path('joblist/<int:pk>/update/', JobDescriptionUpdateView.as_view(), name='job-update'),

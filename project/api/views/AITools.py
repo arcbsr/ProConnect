@@ -199,11 +199,11 @@ class GenerateAIText(APIView):
                 expert_reply = chat_completion['choices'][0]['message']['content']
                 # expert_reply = 'Dummy text'
                 if expert_reply:
-                    return JsonResponse({'expertsays': expert_reply})
+                    return JsonResponse({'expertsays': expert_reply}, safe=False, json_dumps_params={'indent': 4})
                 else:
                     return JsonResponse({'error': 'Unable to fetch data'}, status=500)
             except Exception as e:
-                return JsonResponse({'expertsays': 'May be key error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return JsonResponse({'expertsays': 'May be <key> error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

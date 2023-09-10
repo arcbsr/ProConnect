@@ -21,7 +21,7 @@ class JobDescription(models.Model):
     end_time = models.TimeField(null=True,blank=True)
     category = models.ForeignKey(Category, on_delete=models.SET_DEFAULT,default=1, null=True,blank=True)
     jobtype = models.ForeignKey(Type, on_delete=models.SET_DEFAULT,default=1, null=True,blank=True)
-
+    
 
     def __str__(self):
         return self.title

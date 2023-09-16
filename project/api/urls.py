@@ -6,7 +6,7 @@ from rest_framework import routers
 from knox import views as knox_views
 from rest_framework import permissions
 from api.views.AITools import GenerateAIText, TranslateAPIView, LanguageListView, AIPriceAssist
-from api.views.JobDescriptionView import BidListCreateView, BidListCombineView, JobTypeList, MYBidListAPI, MYJobListAPI
+from api.views.JobDescriptionView import BidListCreateView, BidListCombineView, BookmarkListCreateView, JobTypeList, MYBidListAPI, MYJobListAPI
 
 from api.views.UserProfileView import UserViewSet
 
@@ -37,6 +37,7 @@ urlpatterns = [
     path('languages/', LanguageListView.as_view(), name='language-list'),
     path('weather/<str:city>/', AIPriceAssist.as_view(), name='get-weather'),
     path('aigenaratd/', GenerateAIText.as_view(), name='get-aitext'),
+    path('job/<int:job_id>/bookmark/', BookmarkListCreateView.as_view(), name='task-bookmark'),
     
     
     # path('job/', JobViewSet.as_view(), name='job'),

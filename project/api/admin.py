@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from api.models import Category, Image
-from api.models import JobBidding
+from api.models import JobBidding, JobBookmark
 from .models import UserProfile, JobDescription, RoleModel
 from .models.JobDescription import JobDescriptionAdmin
 from .models.UserProfile import UserProfileAdmin

@@ -13,12 +13,13 @@ from rest_framework import generics, filters
 from api.models.Category import Category
 from api.models.Category import Type
 from api.models.ExtracKeyWord import KeywordExtractor
+from api.models.JobBookmark import Bookmark
 from api.models.Permissions import IsEmployer, IsOwner
 from rest_framework.pagination import LimitOffsetPagination
 from api.models.UserProfile import UserProfile
 from api.models.JobBidding import Bidding
 from api.views.UserProfileView import UserSerializer
-
+from rest_framework.exceptions import APIException
 from rest_framework import status
 
 
@@ -302,3 +303,53 @@ class MYBidListAPI(generics.ListAPIView):
     
         except Exception as e:
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+class BookmarkSerializer(serializers.ModelSerializer):
+    job_title = serializers.CharField(source='job.title', read_only=True)
+    job_description = serializers.CharField(source='job.description', read_only=True)
+    class Meta:
+        model = Bookmark
+        fields = '__all__'
+        # exclude = ['bid_amount']
+        extra_kwargs = {
+            'user': {'required': False},
+            'job': {'required': False},  # Make job field not required
+        }
+class BookmarkListCreateView(generics.ListCreateAPIView):
+    # queryset = Bidding.objects.all()
+    serializer_class = BookmarkSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        job_id = self.kwargs['job_id']
+        biddings = Bookmark.objects.filter(user__id=self.request.user.id)
+        return  biddings
+
+    # def list(self, request, *args, **kwargs):
+    #     return self.http_method_not_allowed(request, *args, **kwargs)
+    def create(self, request, *args, **kwargs):
+        job_id = self.kwargs['job_id']
+        job = JobDescription.objects.get(pk=job_id)
+        if not job:
+            return Response({'error': 'No item found'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return super().create(request, *args, **kwargs)
+    
+    def perform_create(self, serializer):
+        job_id = self.kwargs['job_id']
+       
+        job = JobDescription.objects.get(pk=job_id)
+        if not job:
+            return Response({'error': 'No item found'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        user_id = self.request.user.id
+        existing_bookmark = Bookmark.objects.filter(job=job, user=self.request.user).first()
+
+        if existing_bookmark:
+            # print('Exist...')
+            # Update existing bid
+            # serializer.update(existing_bookmark, serializer.validated_data)
+            # raise APIException("Item already bookmarked.", code=400)
+            existing_bookmark.delete()
+        else:
+            # Create new bid
+            serializer.save(job=job, user= self.request.user)

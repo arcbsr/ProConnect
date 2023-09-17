@@ -4,6 +4,7 @@ from rest_framework import serializers
 from sqlalchemy import false
 from django.contrib.auth.models import User
 from django.contrib import admin
+from api.models import ProjectStatus
 
 from api.models.Category import Category, Type
 
@@ -21,6 +22,7 @@ class JobDescription(models.Model):
     end_time = models.TimeField(null=True,blank=True)
     category = models.ForeignKey(Category, on_delete=models.SET_DEFAULT,default=1, null=True,blank=True)
     jobtype = models.ForeignKey(Type, on_delete=models.SET_DEFAULT,default=1, null=True,blank=True)
+    jobstatus = models.ForeignKey(ProjectStatus.ProjectStatus, on_delete=models.SET_DEFAULT,default=1, null=True,blank=True)
     
 
     def __str__(self):

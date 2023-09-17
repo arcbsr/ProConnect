@@ -53,6 +53,7 @@ class JobDescriptionSerializer(serializers.ModelSerializer):
     author_role = serializers.CharField(source='author.profile.role.name', read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True)
     job_type_name = serializers.CharField(source='jobtype.name', read_only=True)
+    job_status = serializers.CharField(source='jobstatus.name', read_only=True)
     class Meta:
         model = JobDescription
         # fields = '__all__'

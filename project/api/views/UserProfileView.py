@@ -30,7 +30,7 @@ class UserProfileSerializerImage(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ['id', 'name','email','phone','profile_image', 'profile_image_url','latitude','longitude']
+        fields = ['id', 'name','email','phone','profile_image', 'profile_image_url','latitude','longitude','country','area']
         read_only_fields = ['phone']
 
     def get_profile_image_url(self, obj):

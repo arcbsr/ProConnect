@@ -16,7 +16,7 @@ from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# GOOGLE_TRANSLATION_API_KEY = 'AIzaSyDrD_pOtVD9ONgHz20uNczzlwuY6qkL0kQ'
+
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = config('GCD_APP')
 # "google_cloud.json"
 # Actual directory user files go to

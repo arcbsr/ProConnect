@@ -17,7 +17,8 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # GOOGLE_TRANSLATION_API_KEY = 'AIzaSyDrD_pOtVD9ONgHz20uNczzlwuY6qkL0kQ'
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "google_cloud.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = config('GCD_APP')
+# "google_cloud.json"
 # Actual directory user files go to
 MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'mediafiles')
 

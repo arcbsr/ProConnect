@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from api.models import JobDescription
+from api.models import JobDescription, ProjectStatus
 from rest_framework import generics, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -47,8 +47,14 @@ class JobTypeList(generics.ListAPIView):
     queryset = Type.objects.all()
     serializer_class = JobTypeSerialize
 
-class JobDescriptionSerializer(serializers.ModelSerializer):
+class JobStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectStatus.ProjectStatus
+        fields = '__all__'
 
+class JobDescriptionSerializer(serializers.ModelSerializer):
+    
+    jobstatus = JobStatusSerializer()  # Serialize the related status field
     author_name = serializers.CharField(source='author.profile.name', read_only=True)
     author_role = serializers.CharField(source='author.profile.role.name', read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True)
@@ -72,7 +78,7 @@ class JobDescriptionViewSet(APIView):
             })
 
 class JobViewSet(viewsets.ModelViewSet):
-    queryset = JobDescription.objects.all()
+    queryset = JobDescription.objects.filter(jobstatus__name='Active')
     # .select_related('author__profile')
     # queryset = queryset.filter(is_active=True)
     # queryset = queryset.filter(author=2)
@@ -94,7 +100,13 @@ class JobViewSet(viewsets.ModelViewSet):
         elif self.action == 'list':
              permission_classes.append(IsEmployer(self, self.request))
         return permission_classes   # No authentication for other actions
-    
+    @action(detail=False, methods=['GET'])
+    def custom_list(self, request):
+        # Your custom logic to retrieve a list of jobs goes here.
+        jobs = JobDescription.objects.filter(jobstatus__name='Active')
+        serializer = self.get_serializer(jobs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -318,6 +330,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
             'job': {'required': False},  # Make job field not required
         }
 class BookmarkListCreateView(generics.ListCreateAPIView):
+
     # queryset = Bidding.objects.all()
     serializer_class = BookmarkSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -354,3 +367,42 @@ class BookmarkListCreateView(generics.ListCreateAPIView):
         else:
             # Create new bid
             serializer.save(job=job, user= self.request.user)
+
+class BiddingConfirmedSerializer(serializers.ModelSerializer):
+    bidder_name = serializers.CharField(source='worker.profile.name', read_only=True)
+    bidder_id = serializers.CharField(source='worker.profile.user_id', read_only=True)
+    job_title = serializers.CharField(source='job.title', read_only=True)
+    employer_name = serializers.CharField(source='job.author.profile.name', read_only=True)
+    employer_id = serializers.CharField(source='job.author.profile.user_id', read_only=True)
+    class Meta:
+        model = Bidding
+        fields = '__all__'
+        # exclude = ['bid_amount']
+        extra_kwargs = {
+            'job': {'required': False},
+            'bid_amount': {'required': False},  # Make job field not required
+        }
+class BiddingConfirmedView(generics.ListCreateAPIView):
+
+    # queryset = Bidding.objects.all()
+    serializer_class = BiddingConfirmedSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def perform_create(self, serializer):
+        bid_id = self.kwargs['bid_id']
+        bid = Bidding.objects.get(pk=bid_id)
+        job = JobDescription.objects.get(pk=bid.job.id)
+        if job.author.id != self.request.user.id:
+            raise APIException("Permission invalid", code=status.HTTP_401_UNAUTHORIZED)
+        if not job.is_active:
+            print('I am here')
+            message = 'Already acitive bid'
+            raise APIException("Already active bid found", code=status.HTTP_400_BAD_REQUEST)
+        bid.is_confirmed = True
+        job.jobstatus = ProjectStatus.ProjectStatus.objects.get(name='On Progress')
+        job.is_active = False
+        job.save()
+        serializer.update(bid, serializer.validated_data)
+        message = 'Job created successfully.'
+        return Response({'message': message}, status=status.HTTP_201_CREATED)
+

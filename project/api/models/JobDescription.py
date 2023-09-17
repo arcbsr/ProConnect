@@ -31,6 +31,6 @@ class JobDescription(models.Model):
 
 class JobDescriptionAdmin(admin.ModelAdmin):
     search_fields = ('title','description')
-    list_display = ('title','author','description')
+    list_display = ('id','title','author','description')
     list_per_page = 20
     # readonly_fields= ('start_date','end_date','start_time','end_time')

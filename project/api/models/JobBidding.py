@@ -11,6 +11,7 @@ class Bidding(models.Model):
     bid_amount = models.DecimalField(max_digits=10, decimal_places=2)
     submitted_at = models.DateTimeField(auto_now_add=True)
     message = models.TextField(null=True,blank=True)
+    is_confirmed = models.BooleanField(default=False)
 
 
     def __str__(self):

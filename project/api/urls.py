@@ -6,7 +6,7 @@ from rest_framework import routers
 from knox import views as knox_views
 from rest_framework import permissions
 from api.views.AITools import GenerateAIText, TranslateAPIView, LanguageListView, AIPriceAssist
-from api.views.JobDescriptionView import BidListCreateView, BidListCombineView, BookmarkListCreateView, JobTypeList, MYBidListAPI, MYJobListAPI
+from api.views.JobDescriptionView import BidListCreateView, BidListCombineView, BiddingConfirmedView, BookmarkListCreateView, JobTypeList, MYBidListAPI, MYJobListAPI
 
 from api.views.UserProfileView import UserViewSet
 
@@ -32,6 +32,7 @@ urlpatterns = [
     path('login/', LoginAPI.as_view(), name='login'),
     path('logout/', knox_views.LogoutView.as_view(), name='logout'),
     path('job/<int:job_id>/bid/', BidListCreateView.as_view(), name='task-detail'),
+    path('job/bidconfirmed/<int:bid_id>/', BiddingConfirmedView.as_view(), name='task-detail'),
     path('job/detail/<int:job_id>/', BidListCombineView.as_view(), name='test'),
     path('translate/', TranslateAPIView.as_view(), name='translate_api'),
     path('languages/', LanguageListView.as_view(), name='language-list'),

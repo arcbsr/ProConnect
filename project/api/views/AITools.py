@@ -1,7 +1,7 @@
 from decouple import config
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from api.models.AIToolsModel import AITextSerializer, LanguageSerializer, TranslationSerializer
+from api.models.AIToolsModel import AITextSerializer, LanguageSerializer, TranslationSerializer, WeatherTextSerializer
 from rest_framework import status
 from google.cloud import translate_v2 as translate
 from rest_framework import generics, permissions
@@ -142,45 +142,51 @@ class LanguageListView(generics.ListAPIView):
 class AIPriceAssist(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, *args, **kwargs):
-        api_key = '2d1446b9b1b20cbf498762b5fb48d081'
-        city = self.kwargs.get('city')
-        # lat = '51.5604885'
-        # lon = '0.0756475'
-        # timestamp = int(time.time())
-        # # '1668487200'  # Replace with your desired timestamp
-        
-        # response = requests.get(f'http://api.openweathermap.org/data/3.0/onecall/timemachine?lat={lat}&lon={lon}&dt={timestamp}&appid={api_key}&units=metric')
-        # # print(f'http://api.openweathermap.org/data/2.5/onecall/timemachine?lat={lat}&lon={lon}&dt={timestamp}&appid={api_key}')
-        # # https://api.openweathermap.org/data/3.0/onecall/timemachine?lat=51.5604885&lon=0.0756475&dt=1694191370&appid=2d1446b9b1b20cbf498762b5fb48d081&units=metric
-        base_url = "http://api.openweathermap.org/data/2.5/weather"
-        
-        params = {
-            "q": city,
-            "appid": api_key,
-            "units": "metric"  # Adjust units as needed (metric, imperial, etc.)
-        }
-        # TODO: will remove on live mode...
-        params = {
-            "condition": 'rainy',
-            "icon":   'http link will be sent',
-            "price":   '120,110,130',
-        }
-        # End of dummy
-        return JsonResponse(params)
-        response = requests.get(base_url, params=params)
-        if response.status_code == 200:
-            data = response.json()
-            print(data['weather'][0]['main'])
+    def post(self, request, format=None):
+        serializer = WeatherTextSerializer(data=request.data)
+        if serializer.is_valid():
+            
+            api_key = config('WEATHER_API_KEY', default='')
+            # config.get('WEATHER_API_KEY', default='')
+            # city = self.kwargs.get('city')
+            # lat = '51.5604885'
+            # lon = '0.0756475'
+            # timestamp = int(time.time())
+            # # '1668487200'  # Replace with your desired timestamp
+            
+            # response = requests.get(f'http://api.openweathermap.org/data/3.0/onecall/timemachine?lat={lat}&lon={lon}&dt={timestamp}&appid={api_key}&units=metric')
+            # # print(f'http://api.openweathermap.org/data/2.5/onecall/timemachine?lat={lat}&lon={lon}&dt={timestamp}&appid={api_key}')
+            # # https://api.openweathermap.org/data/3.0/onecall/timemachine?lat=51.5604885&lon=0.0756475&dt=1694191370&appid=2d1446b9b1b20cbf498762b5fb48d081&units=metric
+            base_url = "http://api.openweathermap.org/data/2.5/weather"
+            
             params = {
-            "condition": data['weather'][0]['main'],
-            "icon":   data['weather'][0]['icon'],
-            "price":   '+10',
-        }
-            return JsonResponse(data)
-        else:
-            return JsonResponse({'error': 'Unable to fetch weather data'}, status=500)
-    
+                "q": serializer.validated_data['city'],
+                "appid": api_key,
+                "units": "metric",
+                "dt": serializer.validated_data['dt']  # Adjust units as needed (metric, imperial, etc.)
+            }
+            # TODO: will remove on live mode...
+            # params = {
+            #     "condition": 'rainy',
+            #     "icon":   'http link will be sent',
+            #     "price":   '120,110,130',
+            # }
+            # End of dummy
+            # return JsonResponse(params)
+            # print(params)
+            response = requests.get(base_url, params=params)
+            if response.status_code == 200:
+                data = response.json()
+                print(data['weather'][0]['main'])
+                mydata = {
+                "condition": data['weather'][0]['main'],
+                "icon":   'https://openweathermap.org/img/wn/' + data['weather'][0]['icon']+'.png',
+                "description":   data['weather'][0]['description'],
+            }
+                return JsonResponse(mydata)
+            else:
+                return JsonResponse({'error': 'Unable to fetch weather data'}, status=500)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class GenerateAIText(APIView):
     # permission_classes = [IsAuthenticated]

@@ -36,7 +36,7 @@ urlpatterns = [
     path('job/detail/<int:job_id>/', BidListCombineView.as_view(), name='test'),
     path('translate/', TranslateAPIView.as_view(), name='translate_api'),
     path('languages/', LanguageListView.as_view(), name='language-list'),
-    path('weather/<str:city>/', AIPriceAssist.as_view(), name='get-weather'),
+    path('weather/', AIPriceAssist.as_view(), name='get-weather'),
     path('aigenaratd/', GenerateAIText.as_view(), name='get-aitext'),
     path('job/<int:job_id>/bookmark/', BookmarkListCreateView.as_view(), name='task-bookmark'),
     

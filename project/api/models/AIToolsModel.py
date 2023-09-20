@@ -11,3 +11,7 @@ class LanguageSerializer(serializers.Serializer):
 
 class AITextSerializer(serializers.Serializer):
     text = serializers.CharField(max_length=100)
+
+class WeatherTextSerializer(serializers.Serializer):
+    dt = serializers.IntegerField()
+    city = serializers.CharField(max_length=100)

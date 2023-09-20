@@ -54,7 +54,7 @@ class JobStatusSerializer(serializers.ModelSerializer):
 
 class JobDescriptionSerializer(serializers.ModelSerializer):
     
-    jobstatus = JobStatusSerializer()  # Serialize the related status field
+    # jobstatus = JobStatusSerializer()  # Serialize the related status field
     author_name = serializers.CharField(source='author.profile.name', read_only=True)
     author_role = serializers.CharField(source='author.profile.role.name', read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True)
@@ -65,7 +65,8 @@ class JobDescriptionSerializer(serializers.ModelSerializer):
         # fields = '__all__'
         fields = '__all__'
         # exclude = ['keyword']
-        read_only_fields = ['is_active','author','keyword']
+        read_only_fields = ['is_active','author','keyword','jobstatus']
+        
 
 class JobDescriptionViewSet(APIView):
     permission_classes = (permissions.AllowAny,)

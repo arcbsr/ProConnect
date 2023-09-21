@@ -6,6 +6,7 @@ from .models import UserProfile, JobDescription, RoleModel
 from .models.JobDescription import JobDescriptionAdmin
 from .models.UserProfile import UserProfileAdmin
 from .models.RoleModel import RoleAdmin
+from .models.OrderModel import Order
 
 
 # Register your models here.
@@ -15,6 +16,7 @@ admin.site.register(JobDescription, JobDescriptionAdmin)
 admin.site.register(Image)
 admin.site.register(Category.Category)
 admin.site.register(Category.Type)
+admin.site.register(Order)
 admin.site.register(JobBidding.Bidding, JobBidding.BiddingAdmin)
 admin.site.register(ProjectStatus.ProjectStatus, ProjectStatus.ProjectStatusAdmin)
 

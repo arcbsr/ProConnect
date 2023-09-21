@@ -1,4 +1,5 @@
 
+import uuid
 from rest_framework import serializers
 from api.models import JobDescription, ProjectStatus
 from rest_framework import generics, permissions
@@ -14,6 +15,7 @@ from api.models.Category import Category
 from api.models.Category import Type
 from api.models.ExtracKeyWord import KeywordExtractor
 from api.models.JobBookmark import Bookmark
+from api.models.OrderModel import Order, OrderSerializer, generate_unique_string
 from api.models.Permissions import IsEmployer, IsOwner
 from rest_framework.pagination import LimitOffsetPagination
 from api.models.UserProfile import UserProfile
@@ -233,6 +235,14 @@ class BidListCombineView(APIView):
         if not job_details:
             return Response({"error": "item not found"}, status=status.HTTP_404_NOT_FOUND)
         bids = Bidding.objects.filter(job__id=job_id)
+        payments=[]
+        serializer_order = OrderSerializer()
+        for bidding in bids:
+            if bidding.is_confirmed:
+                 if job_details.author.id == self.request.user.id:
+                    payments = Order.objects.filter(job_bid =bidding)
+                    
+        serializer_order = OrderSerializer(payments, many=True)
         my_bids = Bidding.objects.filter(job__id=job_id, worker_id= self.request.user.id).first()
         bid_serializer = BidSerializer(bids, many=True)
         AI_Price = []
@@ -242,16 +252,19 @@ class BidListCombineView(APIView):
             "details": "It's a weather details",
             "icon":"http://google.com/image.png"  # Adjust units as needed (metric, imperial, etc.)
         })
+        
         if not my_bids:
             combined_data = {
             'detail' : job_details_serializer.data,
             'bids': bid_serializer.data,
+            'payments' : serializer_order.data
              }
         else:
             my_bid_serializer = BidSerializer(my_bids, many=False)
             combined_data = {
                 'detail' : job_details_serializer.data,
                 'bids': bid_serializer.data,
+                'payments' : serializer_order.data,
                 'my_bid': my_bid_serializer.data,
                 'suggestions' : AI_Price
             }
@@ -396,7 +409,6 @@ class BiddingConfirmedView(generics.ListCreateAPIView):
         if job.author.id != self.request.user.id:
             raise APIException("Permission invalid", code=status.HTTP_401_UNAUTHORIZED)
         if not job.is_active:
-            print('I am here')
             message = 'Already acitive bid'
             raise APIException("Already active bid found", code=status.HTTP_400_BAD_REQUEST)
         bid.is_confirmed = True
@@ -406,4 +418,37 @@ class BiddingConfirmedView(generics.ListCreateAPIView):
         serializer.update(bid, serializer.validated_data)
         message = 'Job created successfully.'
         return Response({'message': message}, status=status.HTTP_201_CREATED)
+
+
+class PaymentView(generics.ListCreateAPIView):
+
+    # queryset = Bidding.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request, format=None):
+        serializer = OrderSerializer(data=request.data)
+        if serializer.is_valid():
+            bid = serializer.validated_data['job_bid']
+            amount = serializer.validated_data['total_amount']
+            msg = serializer.validated_data['message']
+            
+            order = Order()
+            order.order_number = uuid.uuid4().hex
+            order.job_bid = bid
+            order.total_amount = amount
+            order.message = msg
+            job = JobDescription.objects.get(pk=bid.job.id)
+            if job.author.id != self.request.user.id:
+                raise APIException("Permission invalid", code=status.HTTP_401_UNAUTHORIZED)
+            if bid.is_confirmed:
+                order.save()
+                # if not instance:
+                #     raise APIException("went wrong", code=status.HTTP_500_INTERNAL_SERVER_ERROR)    
+            else:
+                raise APIException("worker id invalid", code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            orders = Order.objects.filter(job_bid =bid )
+            serializer_order = OrderSerializer(orders, many=True)
+        return Response({'payments': serializer_order.data}, status=status.HTTP_201_CREATED)
+    
 

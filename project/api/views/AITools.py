@@ -201,7 +201,7 @@ class GenerateAIText(APIView):
                 if not api_key:
                     return Response({'error': 'Unable to fetch data (Key-Error)'}, status=status.HTTP_400_BAD_REQUEST)
                 openai.api_key = api_key
-                chat_completion = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=[{"role": "user", "content": text}],max_tokens=10)
+                chat_completion = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=[{"role": "user", "content": text}],max_tokens=100)
                 expert_reply = chat_completion['choices'][0]['message']['content']
                 # expert_reply = 'Dummy text'
                 if expert_reply:

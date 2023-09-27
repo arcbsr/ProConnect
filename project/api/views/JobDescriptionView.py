@@ -295,7 +295,8 @@ class BidListCombineView(APIView):
                             "name": skill.name,
                             "learn": skill.course_link
                         })
-        
+            print(required_skills_list)
+            print(user_skills)
         AI_Price = []
         
         AI_Price.append({

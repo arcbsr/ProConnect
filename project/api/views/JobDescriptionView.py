@@ -1,4 +1,5 @@
 
+import os
 import uuid
 from rest_framework import serializers
 from api.models import JobDescription, ProjectStatus
@@ -11,7 +12,8 @@ from rest_framework.decorators import action
 from rest_framework.decorators import permission_classes
 from django.forms.models import model_to_dict
 from rest_framework import generics, filters
-from api.models.Category import Category
+from api.models.CVAnalyzerModel import CV
+from api.models.Category import Category, Skills
 from api.models.Category import Type
 from api.models.ExtracKeyWord import KeywordExtractor
 from api.models.JobBookmark import Bookmark
@@ -20,9 +22,12 @@ from api.models.Permissions import IsEmployer, IsOwner
 from rest_framework.pagination import LimitOffsetPagination
 from api.models.UserProfile import UserProfile
 from api.models.JobBidding import Bidding
+from api.views.AITools import CVSerializer
 from api.views.UserProfileView import UserSerializer
 from rest_framework.exceptions import APIException
 from rest_framework import status
+from PyPDF2 import PdfReader
+from project import settings
 
 
 class CategorySerialize(serializers.ModelSerializer):
@@ -108,6 +113,7 @@ class JobViewSet(viewsets.ModelViewSet):
         # Your custom logic to retrieve a list of jobs goes here.
         jobs = JobDescription.objects.filter(jobstatus__name='Active')
         serializer = self.get_serializer(jobs, many=True)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
@@ -224,6 +230,12 @@ class BidSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'job': {'required': False},  # Make job field not required
         }
+
+class SkillSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Skills
+        fields = '__all__'
+
 class BidListCombineView(APIView):
     serializer_class = BidSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -245,7 +257,51 @@ class BidListCombineView(APIView):
         serializer_order = OrderSerializer(payments, many=True)
         my_bids = Bidding.objects.filter(job__id=job_id, worker_id= self.request.user.id).first()
         bid_serializer = BidSerializer(bids, many=True)
+        skills = list(Skills.objects.all())
+        # skill_serializer = SkillSerializer(skills[0], many = True)
+        required_skills_list = []
+        missing_skills_list = []
+        missing_skills_obj=[]
+        if skills:
+            skills_list = []
+            keyword_extractor = KeywordExtractor()
+            for s in skills:
+                skills_list.append(s.name)
+            missing_skills_list =required_skills_list = keyword_extractor.extract_keywords_withstops_fromlist(job_details.description, skills_list)
+            user_skills=[]
+            my_cv = CV.objects.filter(user=self.request.user.id).first()
+            if my_cv:
+                absolute_path = os.path.join(settings.MEDIA_ROOT, my_cv.file.name)
+                # print(absolute_path)
+                if  os.path.exists(absolute_path):
+                    # raise APIException("File not found", code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    pdf_text = ""
+                    with open(absolute_path, "rb") as pdf_file:
+                        pdf_reader = PdfReader(pdf_file)
+                        for page_number, page in enumerate(pdf_reader.pages, start=1):
+                            pdf_text += page.extract_text()
+
+                    keyword_extractor = KeywordExtractor()
+
+                    user_skills = keyword_extractor.extract_keywords_withstops_fromlist(pdf_text, required_skills_list)
+                    # user_skills.append('cleaning')
+                    for u_skill in user_skills:
+                        missing_skills_list = [x for x in missing_skills_list if x.lower() != u_skill.lower()]
+
+                    
+                    print(required_skills_list)
+                    print(user_skills)
+
+                    for skill in skills:
+                        for mskill in missing_skills_list:
+                            if skill.name.lower() == mskill.lower():
+                                missing_skills_obj.append({
+                                    "name": skill.name,
+                                    "learn": skill.course_link
+                                })
+        
         AI_Price = []
+        
         AI_Price.append({
             "price": 260,
             "weather": 'Cloudy',
@@ -256,17 +312,21 @@ class BidListCombineView(APIView):
         if not my_bids:
             combined_data = {
             'detail' : job_details_serializer.data,
+            'course_required' : missing_skills_obj,
             'bids': bid_serializer.data,
-            'payments' : serializer_order.data
+            'payments' : serializer_order.data,
+             
              }
         else:
             my_bid_serializer = BidSerializer(my_bids, many=False)
             combined_data = {
                 'detail' : job_details_serializer.data,
+                'course_required' : missing_skills_obj,
                 'bids': bid_serializer.data,
                 'payments' : serializer_order.data,
                 'my_bid': my_bid_serializer.data,
-                'suggestions' : AI_Price
+                # 'suggestions' : AI_Price,
+                 
             }
 
         return Response(combined_data)

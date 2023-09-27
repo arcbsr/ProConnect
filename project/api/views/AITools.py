@@ -1,3 +1,4 @@
+from PyPDF2 import PdfReader
 from decouple import config
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,6 +10,13 @@ from django.http import JsonResponse
 import requests
 import openai
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import serializers
+from api.models.CVAnalyzerModel import CV
+from rest_framework.parsers import MultiPartParser, FormParser
+import os
+from rest_framework.exceptions import APIException
+from django.conf import settings
+from api.models.ExtracKeyWord import KeywordExtractor
 
 ALL_COUNTRY_DATA = [
     {"language_code": "af", "display_name": "Afrikaans"},
@@ -214,3 +222,47 @@ class GenerateAIText(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class CVSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CV
+        fields = '__all__'
+        read_only_fields = ['keywords']
+
+class CVUploadView(APIView):
+    # queryset = CV.objects.all()
+    parser_classes = (MultiPartParser, FormParser)
+    serializer_class = CVSerializer
+    permission_classes =[IsAuthenticated]
+    def post(self, request, format=None):
+        request.data['user'] = request.user.id
+        serializer = CVSerializer(data=request.data)
+        if serializer.is_valid():
+            instance = serializer.save()
+            # print(instance.file)
+            absolute_path = os.path.join(settings.MEDIA_ROOT, instance.file.name)
+            # print(absolute_path)
+            if not os.path.exists(absolute_path):
+                raise APIException("File not found", code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            pdf_text = ""
+            with open(absolute_path, "rb") as pdf_file:
+                pdf_reader = PdfReader(pdf_file)
+                for page_number, page in enumerate(pdf_reader.pages, start=1):
+                    pdf_text += page.extract_text()
+
+            keyword_extractor = KeywordExtractor()
+            keywords = keyword_extractor.extract_keywords_withstops(pdf_text)
+            instance.keywords = keywords
+            instance.save()
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CVAnalysisView(generics.RetrieveAPIView):
+    queryset = CV.objects.all()
+    serializer_class = CVSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        # analysis_result = analyze_cv(instance.file.path)  # Implement your CV analysis logic
+        return Response(instance.file.path)
+    

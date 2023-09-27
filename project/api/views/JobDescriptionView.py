@@ -288,13 +288,13 @@ class BidListCombineView(APIView):
                     for u_skill in user_skills:
                         missing_skills_list = [x for x in missing_skills_list if x.lower() != u_skill.lower()]
 
-                for skill in skills:
-                    for mskill in missing_skills_list:
-                        if skill.name.lower() == mskill.lower():
-                            missing_skills_obj.append({
-                                "name": skill.name,
-                                "learn": skill.course_link
-                            })
+            for skill in skills:
+                for mskill in missing_skills_list:
+                    if skill.name.lower() == mskill.lower():
+                        missing_skills_obj.append({
+                            "name": skill.name,
+                            "learn": skill.course_link
+                        })
         
         AI_Price = []
         

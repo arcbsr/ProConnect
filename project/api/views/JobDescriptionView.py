@@ -21,7 +21,7 @@ from api.models.OrderModel import Order, OrderSerializer, generate_unique_string
 from api.models.Permissions import IsEmployer, IsOwner
 from rest_framework.pagination import LimitOffsetPagination
 from api.models.UserProfile import UserProfile
-from api.models.JobBidding import Bidding
+from api.models.JobBidding import Bidding, Review
 from api.views.AITools import CVSerializer
 from api.views.UserProfileView import UserProfileSerializer, UserSerializer
 from rest_framework.exceptions import APIException
@@ -488,6 +488,47 @@ class BiddingConfirmedView(generics.ListCreateAPIView):
         message = 'Job created successfully.'
         return Response({'message': message}, status=status.HTTP_201_CREATED)
 
+class ProjectCompletedView(generics.ListCreateAPIView):
+
+    # queryset = Bidding.objects.all()
+    serializer_class = BiddingConfirmedSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def perform_create(self, serializer):
+        bid_id = self.kwargs['bid_id']
+        bid = Bidding.objects.get(pk=bid_id)
+        job = JobDescription.objects.get(pk=bid.job.id)
+        if job.author.id != self.request.user.id:
+            raise APIException("Permission invalid", code=status.HTTP_401_UNAUTHORIZED)
+        
+        job.jobstatus = ProjectStatus.ProjectStatus.objects.get(name='Completed')
+        job.is_active = False
+        job.save()
+        rating = self.request.POST.get('rating', None)
+        if rating is None:
+            rating = 10
+
+        msg = self.request.POST.get('msg', None)
+        if msg is None:
+            msg = ''
+        review = Review()
+        review.job = job
+        review.worker = bid.worker
+        review.rate = rating
+        review.message = msg
+
+        existing_rating = Review.objects.filter(job=job).first()
+
+        if existing_rating:
+            # Update existing bid
+            # review.update()
+            Review.objects.filter(job=job,worker=bid.worker).delete()
+        
+            # Create new bid
+        review.save()
+        # serializer.update(bid, serializer.validated_data)
+        message = 'Job is completed successfully.'
+        return Response({'messagecsc': message}, status=status.HTTP_201_CREATED)
 
 class PaymentView(generics.ListCreateAPIView):
 

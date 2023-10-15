@@ -21,6 +21,7 @@ admin.site.register(Order)
 admin.site.register(CV)
 admin.site.register(Category.Skills)
 admin.site.register(JobBidding.Bidding, JobBidding.BiddingAdmin)
+admin.site.register(JobBidding.Review, JobBidding.ReviewAdmin)
 admin.site.register(ProjectStatus.ProjectStatus, ProjectStatus.ProjectStatusAdmin)
 
 

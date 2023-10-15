@@ -16,6 +16,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 import os
 from rest_framework.exceptions import APIException
 from django.conf import settings
+from api.models.Category import Skills
 from api.models.ExtracKeyWord import KeywordExtractor
 
 ALL_COUNTRY_DATA = [
@@ -250,8 +251,14 @@ class CVUploadView(APIView):
                     pdf_text += page.extract_text()
 
             keyword_extractor = KeywordExtractor()
-            keywords = keyword_extractor.extract_keywords_withstops(pdf_text)
-            instance.keywords = keywords
+            skills = list(Skills.objects.all())
+            if skills:
+                skills_list = []
+                keyword_extractor = KeywordExtractor()
+                for s in skills:
+                    skills_list.append(s.name)
+                keywords = keyword_extractor.extract_keywords_withstops_fromlist(pdf_text,skills_list)
+                instance.keywords = keywords
             instance.save()
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)

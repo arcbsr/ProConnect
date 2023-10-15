@@ -23,7 +23,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from api.models.UserProfile import UserProfile
 from api.models.JobBidding import Bidding
 from api.views.AITools import CVSerializer
-from api.views.UserProfileView import UserSerializer
+from api.views.UserProfileView import UserProfileSerializer, UserSerializer
 from rest_framework.exceptions import APIException
 from rest_framework import status
 from PyPDF2 import PdfReader
@@ -164,7 +164,15 @@ class JobViewSet(viewsets.ModelViewSet):
         # parts = input_string.split()  # Splitting the string by whitespace
         # result = ", ".join(parts) 
         keyword_extractor = KeywordExtractor()
-        keywords = keyword_extractor.extract_keywords(self.request.POST.get('description', ''))
+        skills = list(Skills.objects.all())
+        if skills:
+                skills_list = []
+                keyword_extractor = KeywordExtractor()
+                for s in skills:
+                    skills_list.append(s.name)
+        keywords = keyword_extractor.extract_keywords_withstops_fromlist(self.request.POST.get('description', ''),skills_list)
+                
+        # keywords = keyword_extractor.extract_keywords(self.request.POST.get('description', ''))
         serializer.save(author=self.request.user, keyword=keywords, is_active=True)
 
 class JobListAPI(APIView):
@@ -257,6 +265,8 @@ class BidListCombineView(APIView):
         serializer_order = OrderSerializer(payments, many=True)
         my_bids = Bidding.objects.filter(job__id=job_id, worker_id= self.request.user.id).first()
         bid_serializer = BidSerializer(bids, many=True)
+        worker = UserProfile.objects.all()[:3]
+        worker_serializer = UserProfileSerializer(worker, many=True)
         skills = list(Skills.objects.all())
         # skill_serializer = SkillSerializer(skills[0], many = True)
         required_skills_list = []
@@ -312,7 +322,8 @@ class BidListCombineView(APIView):
             'course_required' : missing_skills_obj,
             'bids': bid_serializer.data,
             'payments' : serializer_order.data,
-             
+            'recommended' : worker_serializer.data,
+            'p_sug' : AI_Price,
              }
         else:
             my_bid_serializer = BidSerializer(my_bids, many=False)
@@ -322,7 +333,8 @@ class BidListCombineView(APIView):
                 'bids': bid_serializer.data,
                 'payments' : serializer_order.data,
                 'my_bid': my_bid_serializer.data,
-                # 'suggestions' : AI_Price,
+                'recommended' : worker_serializer.data,
+                'p_sug' : AI_Price,
                  
             }
 

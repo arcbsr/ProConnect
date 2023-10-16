@@ -6,7 +6,7 @@ from api.models.AIToolsModel import AITextSerializer, LanguageSerializer, Transl
 from rest_framework import status
 from google.cloud import translate_v2 as translate
 from rest_framework import generics, permissions
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 import requests
 import openai
 from rest_framework.permissions import IsAuthenticated
@@ -264,6 +264,59 @@ class CVUploadView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+# class CVUploadView(APIView):
+#     # queryset = CV.objects.all()
+#     parser_classes = (MultiPartParser, FormParser)
+#     serializer_class = CVSerializer
+#     permission_classes =[IsAuthenticated]
+#     def post(self, request, format=None):
+#         request.data['user'] = request.user.id
+#         serializer = CVSerializer(data=request.data)
+#         if serializer.is_valid():
+#             instance = serializer.save()
+#             # print(instance.file)
+#             absolute_path = os.path.join(settings.MEDIA_ROOT, instance.file.name)
+#             # print(absolute_path)
+#             if not os.path.exists(absolute_path):
+#                 raise APIException("File not found", code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#             pdf_text = ""
+#             with open(absolute_path, "rb") as pdf_file:
+#                 pdf_reader = PdfReader(pdf_file)
+#                 for page_number, page in enumerate(pdf_reader.pages, start=1):
+#                     pdf_text += page.extract_text()
+
+#             skills = list(Skills.objects.all())
+#             if skills:
+#                 skills_list = []
+#                 keyword_extractor = KeywordExtractor()
+#                 for s in skills:
+#                     skills_list.append(s.name)
+#                 keyword_extractor = KeywordExtractor()
+#                 # Parse the document and get the results
+#                 parsed_info = keyword_extractor.parse_documents(pdf_text,skills_list)
+
+#                 # Print the extracted information
+#                 print("Named Entities:")
+#                 for entity, label in parsed_info["named_entities"]:
+#                     print(f"{entity} ({label})")
+
+#                 print("\nVerbs:")
+#                 print(", ".join(parsed_info["verbs"]))
+
+#                 print("\nNoun Phrases:")
+#                 print(", ".join(parsed_info["noun_phrases"]))
+
+#                 print("\nSentiment Score:", parsed_info["sentiment_score"])
+
+#                 print("\nTopics:", parsed_info["topics"])
+
+#                 print("\nSummary:")
+#                 print(parsed_info["summary"])
+
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class CVAnalysisView(generics.RetrieveAPIView):
     queryset = CV.objects.all()
     serializer_class = CVSerializer
@@ -272,4 +325,11 @@ class CVAnalysisView(generics.RetrieveAPIView):
         instance = self.get_object()
         # analysis_result = analyze_cv(instance.file.path)  # Implement your CV analysis logic
         return Response(instance.file.path)
+    
+
+def expData(request):
+    data = {
+        'message': 'Hello, World!'
+    }
+    return JsonResponse(data)
     

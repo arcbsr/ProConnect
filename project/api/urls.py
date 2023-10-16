@@ -5,7 +5,7 @@ from api.views import UserProfileViewSet, ProfileView, RegisterAPI,LoginAPI, Use
 from rest_framework import routers
 from knox import views as knox_views
 from rest_framework import permissions
-from api.views.AITools import CVAnalysisView, CVUploadView, GenerateAIText, TranslateAPIView, LanguageListView, AIPriceAssist
+from api.views.AITools import CVAnalysisView, CVUploadView, GenerateAIText, TranslateAPIView, LanguageListView, AIPriceAssist, expData
 from api.views.JobDescriptionView import BidListCreateView, BidListCombineView, BiddingConfirmedView, BookmarkListCreateView, JobTypeList, MYBidListAPI, MYJobListAPI, PaymentView, ProjectCompletedView
 
 from api.views.UserProfileView import UserViewSet
@@ -44,6 +44,7 @@ urlpatterns = [
     path('makepayment/', PaymentView.as_view(), name='get-aitext'),
     path('cv/upload/', CVUploadView.as_view(), name='cv-upload'),
     path('cv/analysis/<int:pk>/', CVAnalysisView.as_view(), name='cv-analysis'),
+    path('exp/meresult/', expData, name='cv-analysis'),
     # path('job/', JobViewSet.as_view(), name='job'),
     # path('', include(router.urls)),
 
